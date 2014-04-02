@@ -98,5 +98,8 @@ private:
     yarp::os::Network yarp;
     yarp::os::BufferedPort<yarp::os::Bottle> port;
     
+    double fakeMouseX;
+    double fakeMouseY;
+    
 };
 

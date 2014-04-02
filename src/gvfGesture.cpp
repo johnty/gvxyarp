@@ -104,7 +104,13 @@ void gvfGesture::draw(ofRectangle drawArea, float scale)
         // the gesture will be drawn as a mesh. Each point will be a vertex
         ofMesh gestureMesh;
         gestureMesh.setMode(OF_PRIMITIVE_LINE_STRIP);
-
+        
+        ofMesh gestureMeshX;
+        gestureMeshX.setMode(OF_PRIMITIVE_LINE_STRIP);
+ 
+        ofMesh gestureMeshY;
+        gestureMeshY.setMode(OF_PRIMITIVE_LINE_STRIP);
+        
         for(int i = 1; i < gestureSize; i++)
         {
             ofPoint point(data[i][0], data[i][1]);
@@ -119,9 +125,17 @@ void gvfGesture::draw(ofRectangle drawArea, float scale)
             // the previously normalised points are scaled and translated before being added to the mesh
             float ix = (((prevPoint.x * scale - 0.5) * 2) + firstPoint[0]) * greatestDimension + drawArea.x;
             float iy = (((prevPoint.y * scale - 0.5) * 2) + firstPoint[1]) * greatestDimension + drawArea.y;
+            
+            float dx = ( (float)i/(float)gestureSize )* drawArea.width + drawArea.x;
 
             gestureMesh.addColor(color);
             gestureMesh.addVertex(ofVec2f(ix, iy));
+            
+            gestureMeshX.addColor(ofColor(255,0,255));
+            gestureMeshX.addVertex(ofVec2f(dx, ix));
+            
+            gestureMeshY.addColor(ofColor(0,255,255));
+            gestureMeshY.addVertex(ofVec2f(dx, iy));
             
             // we always keep track of two points, in order to calculate the thinness
             prevPoint = point;
@@ -137,6 +151,8 @@ void gvfGesture::draw(ofRectangle drawArea, float scale)
         // draw the "mesh" (line)
         ofEnableSmoothing();
         gestureMesh.draw();
+        gestureMeshX.draw();
+        gestureMeshY.draw();
 
     
         ofDisableSmoothing();

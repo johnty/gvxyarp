@@ -50,35 +50,28 @@ void testApp::update(){
     // feed the last point on the gesture to the gvf handler
     // (depending on the speed the user is performing the gesture,
     // the same point might be fed several times)
-    printf("pending reads = %i\n", port.getPendingReads());
+    //printf("pending reads = %i\n", port.getPendingReads());
     while (port.getPendingReads() != 0) {
         
         yarp::os::Bottle *input = port.read();
         
-        if (input->get(0).toString() == "/mouse") {
-            printf("input size = %i\n", input->size());
-            if (input->size() == 4) {
-                //up or down
-                double mx = input->get(2).asDouble();
-                double my = input->get(3).asDouble();
-                //printf("mouse btn %s mouse pos = %1.2f : %1.2f\n", input->get(1).asString().c_str(),mx,my);
+        if (input->get(0).toString() == "/device") {
 
-                if (input->get(1).asString()=="down") {
-                    active = true;
-                    mousePressed(ofGetWidth()*mx, ofGetHeight()*my, 0);
-                }
-                else { //up
-                    active = false;
-                    mouseReleased(ofGetWidth()*mx, ofGetHeight()*my, 0);
-                }
+            //up or down
+            double accel_x = input->get(5).asDouble();
+            double accel_y = input->get(6).asDouble();
+            double accel_z = input->get(7).asDouble();
+            
+            double mx = fakeMouseX = accel_x*100.0+50.0;
+            double my = fakeMouseY = accel_y*100.0+50.0;
+            printf("%f %f\n", fakeMouseX, fakeMouseY);
+            
+            if (active) {
+                mouseDragged(mx, my, 0);
             }
-            else if (input->size() == 3) {
-                double mx = input->get(1).asDouble();
-                double my = input->get(2).asDouble();
-                //printf("mouse pos = %1.2f : %1.2f\n",mx, my);
-                mouseDragged(ofGetWidth()*mx, ofGetHeight()*my, 0);
-            }
+
         }
+        
     }
     
     
@@ -331,6 +324,20 @@ void testApp::keyPressed(int key){
     else if (key == '4')
     {
         displayCurrentGesture = !displayCurrentGesture;
+    }
+    else if (key == ' ') {
+        //dummy "mouse down"
+        if (active) {
+            printf("mUP");
+            mouseReleased(fakeMouseX, fakeMouseY, 0);
+            active = false;
+        }
+        else {
+            printf("mDown\n");
+            mousePressed(fakeMouseX, fakeMouseY, 0);
+            active = true;
+        }
+        
     }
 }
 
