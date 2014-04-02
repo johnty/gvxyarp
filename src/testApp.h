@@ -94,7 +94,7 @@ private:
 	ofMaterial m1;
 	
 	map <int, ofPolyline> fingerTrails;
-    
+    bool active;
     yarp::os::Network yarp;
     yarp::os::BufferedPort<yarp::os::Bottle> port;
     

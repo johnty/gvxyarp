@@ -33,6 +33,7 @@ void testApp::setup(){
     initColors();
     
     port.open("/ofxgvf");
+    active = false;
 
     
 	leap.open();
@@ -49,27 +50,32 @@ void testApp::update(){
     // feed the last point on the gesture to the gvf handler
     // (depending on the speed the user is performing the gesture,
     // the same point might be fed several times)
-    
-    if (port.getPendingReads()) {
+    printf("pending reads = %i\n", port.getPendingReads());
+    while (port.getPendingReads() != 0) {
+        
         yarp::os::Bottle *input = port.read();
+        
         if (input->get(0).toString() == "/mouse") {
+            printf("input size = %i\n", input->size());
             if (input->size() == 4) {
                 //up or down
                 double mx = input->get(2).asDouble();
                 double my = input->get(3).asDouble();
-                printf("mouse btn %s mouse pos = %1.2f : %1.2f\n", input->get(1).asString().c_str(),mx,my);
+                //printf("mouse btn %s mouse pos = %1.2f : %1.2f\n", input->get(1).asString().c_str(),mx,my);
 
                 if (input->get(1).asString()=="down") {
+                    active = true;
                     mousePressed(ofGetWidth()*mx, ofGetHeight()*my, 0);
                 }
                 else { //up
+                    active = false;
                     mouseReleased(ofGetWidth()*mx, ofGetHeight()*my, 0);
                 }
             }
             else if (input->size() == 3) {
                 double mx = input->get(1).asDouble();
                 double my = input->get(2).asDouble();
-                printf("mouse pos = %1.2f : %1.2f\n",mx, my);
+                //printf("mouse pos = %1.2f : %1.2f\n",mx, my);
                 mouseDragged(ofGetWidth()*mx, ofGetHeight()*my, 0);
             }
         }
@@ -147,7 +153,12 @@ void testApp::update(){
 void testApp::draw(){
     
     float templatesScale = 0.5f;
-    ofBackgroundGradient(ofColor(2), ofColor(40), OF_GRADIENT_CIRCULAR);
+    if (active) {
+        ofBackgroundGradient(ofColor(120), ofColor(40), OF_GRADIENT_CIRCULAR);
+    }
+    else {
+        ofBackgroundGradient(ofColor(2), ofColor(40), OF_GRADIENT_CIRCULAR);
+    }
     ofPushMatrix();
     
     if(rotate)
